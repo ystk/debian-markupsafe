@@ -12,7 +12,7 @@ import re
 from itertools import imap
 
 
-__all__ = ['Module', 'soft_unicode', 'escape']
+__all__ = ['Markup', 'soft_unicode', 'escape', 'escape_silent']
 
 
 _striptags_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
@@ -181,8 +181,12 @@ class Markup(unicode):
 
     # new in python 2.5
     if hasattr(unicode, 'partition'):
-        partition = make_wrapper('partition'),
-        rpartition = make_wrapper('rpartition')
+        def partition(self, sep):
+            return tuple(map(self.__class__,
+                             unicode.partition(self, escape(sep))))
+        def rpartition(self, sep):
+            return tuple(map(self.__class__,
+                             unicode.rpartition(self, escape(sep))))
 
     # new in python 2.6
     if hasattr(unicode, 'format'):
@@ -220,6 +224,6 @@ class _MarkupEscapeHelper(object):
 # we have to import it down here as the speedups and native
 # modules imports the markup type which is define above.
 try:
-    from markupsafe._speedups import escape, soft_unicode
+    from markupsafe._speedups import escape, escape_silent, soft_unicode
 except ImportError:
-    from markupsafe._native import escape, soft_unicode
+    from markupsafe._native import escape, escape_silent, soft_unicode

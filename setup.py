@@ -9,6 +9,9 @@ from distutils.errors import CCompilerError, DistutilsExecError, \
 # fail safe compilation shamelessly stolen from the simplejson
 # setup.py file.  Original author: Bob Ippolito
 
+is_jython = 'java' in sys.platform
+is_pypy = hasattr(sys, 'pypy_version_info')
+
 
 speedups = Feature(
     'optional C speed-enhancement module',
@@ -48,6 +51,11 @@ class ve_build_ext(build_ext):
             build_ext.build_extension(self, ext)
         except ext_errors:
             raise BuildFailed()
+        except ValueError:
+            # this can happen on Windows 64 bit, see Python issue 7511
+            if "'path'" in str(sys.exc_info()[1]): # works with Python 2 and 3
+                raise BuildFailed()
+            raise
 
 
 def echo(msg=''):
@@ -63,7 +71,7 @@ def run_setup(with_binary):
         features['speedups'] = speedups
     setup(
         name='MarkupSafe',
-        version='0.9.2',
+        version='0.15',
         url='http://dev.pocoo.org/',
         license='BSD',
         author='Armin Ronacher',
@@ -92,21 +100,29 @@ def run_setup(with_binary):
     )
 
 
-try:
-    run_setup(True)
-except BuildFailed:
-    LINE = '=' * 74
-    BUILD_EXT_WARNING = 'WARNING: The C extension could not be compiled, speedups are not enabled.'
+def try_building_extension():
+    try:
+        run_setup(True)
+    except BuildFailed:
+        LINE = '=' * 74
+        BUILD_EXT_WARNING = 'WARNING: The C extension could not be ' \
+                            'compiled, speedups are not enabled.'
 
-    echo(LINE)
-    echo(BUILD_EXT_WARNING)
-    echo('Failure information, if any, is above.')
-    echo('Retrying the build without the C extension now.')
-    echo()
+        echo(LINE)
+        echo(BUILD_EXT_WARNING)
+        echo('Failure information, if any, is above.')
+        echo('Retrying the build without the C extension now.')
+        echo()
 
+        run_setup(False)
+
+        echo(LINE)
+        echo(BUILD_EXT_WARNING)
+        echo('Plain-Python installation succeeded.')
+        echo(LINE)
+
+
+if not (is_pypy or is_jython):
+    try_building_extension()
+else:
     run_setup(False)
-
-    echo(LINE)
-    echo(BUILD_EXT_WARNING)
-    echo('Plain-Python installation succeeded.')
-    echo(LINE)
