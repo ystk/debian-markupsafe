@@ -12,7 +12,7 @@
 #include <Python.h>
 
 #define ESCAPED_CHARS_TABLE_SIZE 63
-#define UNICHR(x) (((PyUnicodeObject*)PyUnicode_DecodeASCII(x, strlen(x), NULL))->str);
+#define UNICHR(x) (PyUnicode_AS_UNICODE((PyUnicodeObject*)PyUnicode_DecodeASCII(x, strlen(x), NULL)));
 
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
 typedef int Py_ssize_t;
@@ -56,17 +56,17 @@ static PyObject*
 escape_unicode(PyUnicodeObject *in)
 {
 	PyUnicodeObject *out;
-	Py_UNICODE *inp = in->str;
-	const Py_UNICODE *inp_end = in->str + in->length;
+	Py_UNICODE *inp = PyUnicode_AS_UNICODE(in);
+	const Py_UNICODE *inp_end = PyUnicode_AS_UNICODE(in) + PyUnicode_GET_SIZE(in);
 	Py_UNICODE *next_escp;
 	Py_UNICODE *outp;
 	Py_ssize_t delta=0, erepl=0, delta_len=0;
 
 	/* First we need to figure out how long the escaped string will be */
 	while (*(inp) || inp < inp_end) {
-		if (*inp < ESCAPED_CHARS_TABLE_SIZE && escaped_chars_delta_len[*inp]) {
+		if (*inp < ESCAPED_CHARS_TABLE_SIZE) {
 			delta += escaped_chars_delta_len[*inp];
-			++erepl;
+			erepl += !!escaped_chars_delta_len[*inp];
 		}
 		++inp;
 	}
@@ -77,12 +77,12 @@ escape_unicode(PyUnicodeObject *in)
 		return (PyObject*)in;
 	}
 
-	out = (PyUnicodeObject*)PyUnicode_FromUnicode(NULL, in->length + delta);
+	out = (PyUnicodeObject*)PyUnicode_FromUnicode(NULL, PyUnicode_GET_SIZE(in) + delta);
 	if (!out)
 		return NULL;
 
-	outp = out->str;
-	inp = in->str;
+	outp = PyUnicode_AS_UNICODE(out);
+	inp = PyUnicode_AS_UNICODE(in);
 	while (erepl-- > 0) {
 		/* look for the next substitution */
 		next_escp = inp;
@@ -108,7 +108,7 @@ escape_unicode(PyUnicodeObject *in)
 		inp = next_escp + 1;
 	}
 	if (inp < inp_end)
-		Py_UNICODE_COPY(outp, inp, in->length - (inp - in->str));
+		Py_UNICODE_COPY(outp, inp, PyUnicode_GET_SIZE(in) - (inp - PyUnicode_AS_UNICODE(in)));
 
 	return (PyObject*)out;
 }
@@ -160,6 +160,15 @@ escape(PyObject *self, PyObject *text)
 
 
 static PyObject*
+escape_silent(PyObject *self, PyObject *text)
+{
+	if (text != Py_None)
+		return escape(self, text);
+	return PyObject_CallFunctionObjArgs(markup, NULL);
+}
+
+
+static PyObject*
 soft_unicode(PyObject *self, PyObject *s)
 {
 	if (!PyUnicode_Check(s))
@@ -179,6 +188,9 @@ static PyMethodDef module_methods[] = {
 	 "Convert the characters &, <, >, ', and \" in string s to HTML-safe\n"
 	 "sequences.  Use this if you need to display text that might contain\n"
 	 "such characters in HTML.  Marks return value as markup string."},
+	{"escape_silent", (PyCFunction)escape_silent, METH_O,
+	 "escape_silent(s) -> markup\n\n"
+	 "Like escape but converts None to an empty string."},
 	{"soft_unicode", (PyCFunction)soft_unicode, METH_O,
 	 "soft_unicode(object) -> string\n\n"
          "Make a string unicode if it isn't already.  That way a markup\n"
