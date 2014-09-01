@@ -1,31 +1,36 @@
 #!/usr/bin/make -f
 
 #export DH_VERBOSE=1
-PYVERS=$(shell pyversions -vr) $(shell py3versions -sv)
+PYVERS=$(shell pyversions -vr) $(shell py3versions -vr)
 
 include /usr/share/python/python.mk
 pkgdir = $(CURDIR)/debian/python$(if $(patsubst 3.%,,$(1)),,3)-markupsafe
+
+DPKG_EXPORT_BUILDFLAGS = 1
+-include /usr/share/dpkg/buildflags.mk
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -rf dist build MarkupSafe.egg-info
 	find . -name '*\.pyc' -delete
-	dh_clean install-stamp build-stamp \
+	dh_clean install-stamp build-arch \
 		$(PYVERS:%=install-python%) $(PYVERS:%=build-python%) \
 		$(PYVERS:%=install-debug-python%) $(PYVERS:%=build-debug-python%)
 
-build: build-stamp
+build: build-arch
 
-build-stamp: $(PYVERS:%=build-python%) $(PYVERS:%=build-debug-python%)
+build-indep:
+
+build-arch: $(PYVERS:%=build-python%) $(PYVERS:%=build-debug-python%)
 	touch $@
 
 build-python%:
-	python$* setup.py --with-speedups build
+	python$* setup.py build
 	touch $@
 
 build-debug-python%:
-	python$*-dbg setup.py --with-speedups build
+	python$*-dbg setup.py build
 	touch $@
 
 install: install-stamp
@@ -34,7 +39,7 @@ install-stamp: $(PYVERS:%=install-python%) $(PYVERS:%=install-debug-python%)
 	touch $@
 
 install-python%: build
-	python$* setup.py --with-speedups install \
+	python$* setup.py install \
 		--install-layout=deb --skip-build \
 		--single-version-externally-managed \
 		--root $(call pkgdir,$*)
@@ -42,7 +47,7 @@ install-python%: build
 	touch $@
 
 install-debug-python%: build
-	python$*-dbg setup.py --with-speedups install \
+	python$*-dbg setup.py install \
 		--install-layout=deb --skip-build \
 		--single-version-externally-managed \
 		--root $(call pkgdir,$*)-dbg/

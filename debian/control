@@ -3,75 +3,56 @@ Section: python
 Priority: optional
 Maintainer: Piotr Ożarowski <piotr@debian.org>
 Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
-Build-Depends: debhelper (>= 5),
- python-all-dev (>= 2.6.5-2), python3-all-dev (>= 3.1.2-8~),
+Build-Depends: debhelper (>= 9),
+ python-all-dev (>= 2.6.5-2), python3-all-dev (>= 3.3.0-3~),
  python-all-dbg, python3-all-dbg,
  python-setuptools, python3-setuptools
-Standards-Version: 3.9.2
+Standards-Version: 3.9.5
 Homepage: http://pypi.python.org/pypi/MarkupSafe
-Vcs-Svn: svn://svn.debian.org/python-modules/packages/markupsafe/trunk
-Vcs-Browser: http://svn.debian.org/viewsvn/python-modules/packages/markupsafe/trunk/
+Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/markupsafe/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/markupsafe/trunk/
 XS-Python-Version: >= 2.4
+X-Python3-Version: >= 3.3
 
 Package: python-markupsafe
 Architecture: any
 Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
 Provides: ${python:Provides}
-Description: XML/HTML/XHTML Markup safe string for Python
- MarkupSafe implements a unicode subclass that supports HTML strings:
- .
-  >>> from markupsafe import Markup, escape
-  >>> escape("<script>alert(document.cookie);</script>")
-  Markup(u'&lt;script&gt;alert(document.cookie);&lt;/script&gt;')
-  >>> tmpl = Markup("<em>%s</em>")
-  >>> tmpl % "Peter > Lustig"
-  Markup(u'<em>Peter &gt; Lustig</em>')
- .
- If you want to make an object unicode that is not yet unicode
- but don't want to lose the taint information, you can use the
- `soft_unicode` function:
- .
-  >>> from markupsafe import soft_unicode
-  >>> soft_unicode(42)
-  u'42'
-  >>> soft_unicode(Markup('foo'))
-  Markup(u'foo')
+Description: HTML/XHTML/XML string library for Python
+ MarkupSafe is a Python library implementing a unicode subclass that is
+ aware of HTML escaping rules. It can be used to implement automatic
+ string escaping.
 
 Package: python-markupsafe-dbg
 Architecture: any
 Section: debug
 Priority: extra
 Depends: python-markupsafe (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
-Description: XML/HTML/XHTML Markup safe string for Python
+Description: HTML/XHTML/XML string library for Python - debug version
+ MarkupSafe is a Python library implementing a unicode subclass that is
+ aware of HTML escaping rules. It can be used to implement automatic
+ string escaping.
+ .
  This package contains the extension built for the Python debug interpreter.
 
 Package: python3-markupsafe
 Architecture: any
 Depends: ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends}
-Description: XML/HTML/XHTML Markup safe string for Python3
- MarkupSafe implements a unicode subclass that supports HTML strings:
+Description: HTML/XHTML/XML string library for Python 3
+ MarkupSafe is a Python library implementing a unicode subclass that is
+ aware of HTML escaping rules. It can be used to implement automatic
+ string escaping.
  .
-  >>> from markupsafe import Markup, escape
-  >>> escape("<script>alert(document.cookie);</script>")
-  Markup('&lt;script&gt;alert(document.cookie);&lt;/script&gt;')
-  >>> tmpl = Markup("<em>%s</em>")
-  >>> tmpl % "Peter > Lustig"
-  Markup('<em>Peter &gt; Lustig</em>')
- .
- If you want to make an object unicode that is not yet unicode
- but don't want to lose the taint information, you can use the
- `soft_unicode` function:
- .
-  >>> from markupsafe import soft_unicode
-  >>> soft_unicode(42)
-  '42'
-  >>> soft_unicode(Markup('foo'))
-  Markup('foo')
+ This package contains the Python 3 version.
 
 Package: python3-markupsafe-dbg
 Architecture: any
 Section: debug
 Priority: extra
 Depends: python3-markupsafe (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}
-Description: XML/HTML/XHTML Markup safe string for Python3
- This package contains the extension built for the Python3 debug interpreter.
+Description: HTML/XHTML/XML string library for Python 3 - debug version
+ MarkupSafe is a Python library implementing a unicode subclass that is
+ aware of HTML escaping rules. It can be used to implement automatic
+ string escaping.
+ .
+ This package contains the extension built for the Python 3 debug interpreter.

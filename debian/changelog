@@ -1,3 +1,41 @@
+markupsafe (0.23-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Piotr Ożarowski <piotr@debian.org>  Mon, 12 May 2014 20:16:56 +0200
+
+markupsafe (0.21-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Piotr Ożarowski <piotr@debian.org>  Mon, 05 May 2014 22:11:16 +0200
+
+markupsafe (0.19-1) unstable; urgency=medium
+
+  * New upstream release
+    --with-speedups removed from debian/rules (it's enabled by default now)
+  * Standards-Version bumped to 3.9.5 (no changes needed)
+
+ -- Piotr Ożarowski <piotr@debian.org>  Thu, 06 Mar 2014 22:57:52 +0100
+
+markupsafe (0.18-1) unstable; urgency=low
+
+  [ Jakub Wilk ]
+  * Use canonical URIs for Vcs-* fields.
+
+  [ Piotr Ożarowski ]
+  * New upstream release
+    - minimum required Python 3 version bumped to 3.3, python3-all-dev bumped
+      to 3.3.0-3~ to generate versioned py3compile maintainer script
+  * Harden extension (debian/rules updated to export hardening build flags)
+  * Standards-Version bumped to 3.9.4
+    - add build-indep and build-arch targets in debian/rules
+  * debian/compat bumped to 9
+  * Package descriptions updated (thanks to Martin Eberhard Schauer and
+    Justin B Rye, closes: #682835)
+
+ -- Piotr Ożarowski <piotr@debian.org>  Tue, 20 Aug 2013 22:54:33 +0200
+
 markupsafe (0.15-1) unstable; urgency=low
 
   * New upstream release
